@@ -1,0 +1,3 @@
+include ':acsbt'
+
+rootProject.name = 'flutter_nfc_acs'
