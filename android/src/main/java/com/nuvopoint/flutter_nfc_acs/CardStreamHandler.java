@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 import com.acs.bluetooth.Acr1255uj1Reader;
 import com.acs.bluetooth.BluetoothReader;
 
+import java.util.Arrays;
+
 import io.flutter.plugin.common.EventChannel;
 
 import static android.content.ContentValues.TAG;
@@ -30,7 +32,7 @@ class CardStreamHandler implements EventChannel.StreamHandler {
       reader.setOnResponseApduAvailableListener((_r, response, errorCode) -> {
         if (events != null) {
           if (errorCode == BluetoothReader.ERROR_SUCCESS) {
-            new Handler(Looper.getMainLooper()).post(() -> events.success(Utils.toHexString(response)));
+            new Handler(Looper.getMainLooper()).post(() -> events.success(Utils.toHexString(Arrays.copyOf(response, response.length - 2))));
           } else {
             new Handler(Looper.getMainLooper()).post(() -> events.error("unknown_reader_error", String.valueOf(errorCode), null));
           }
