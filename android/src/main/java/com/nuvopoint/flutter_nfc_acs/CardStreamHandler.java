@@ -34,8 +34,6 @@ class CardStreamHandler implements EventChannel.StreamHandler {
           } else {
             new Handler(Looper.getMainLooper()).post(() -> events.error("unknown_reader_error", String.valueOf(errorCode), null));
           }
-        } else {
-          Log.e(TAG, "Card stream could not output events because the sink was null");
         }
       });
 
@@ -67,7 +65,6 @@ class CardStreamHandler implements EventChannel.StreamHandler {
   void startPolling() {
     if (reader != null) {
       reader.transmitEscapeCommand(AUTO_POLLING_START);
-      Log.i(TAG, "STARTED POLLING!");
     }
   }
 

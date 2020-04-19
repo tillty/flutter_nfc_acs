@@ -72,7 +72,7 @@ class _DeviceRouteState extends State<DeviceRoute> {
   void initState() {
     super.initState();
 
-    FlutterNfcAcs.connect(widget.device).catchError((err) => setState(() => error = err));
+    FlutterNfcAcs.connect(widget.device.address).catchError((err) => setState(() => error = err));
 
     _sub = FlutterNfcAcs.connectionStatus.listen((status) {
       setState(() {
@@ -91,7 +91,7 @@ class _DeviceRouteState extends State<DeviceRoute> {
             RaisedButton(
               child: Text(connection == FlutterNfcAcs.DISCONNECTED ? 'Connect' : 'Disconnect'),
               onPressed: () => connection == FlutterNfcAcs.DISCONNECTED
-                  ? FlutterNfcAcs.connect(widget.device).catchError((err) => setState(() => error = err))
+                  ? FlutterNfcAcs.connect(widget.device.address).catchError((err) => setState(() => error = err))
                   : FlutterNfcAcs.disconnect(),
             ),
             Text(widget.device?.name ?? 'No name'),

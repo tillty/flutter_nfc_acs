@@ -58,8 +58,8 @@ class FlutterNfcAcs {
     return _batteryStatus;
   }
 
-  static Future<void> connect(AcsDevice device) {
-    return _channel.invokeMethod(CONNECT, {'address': device.address});
+  static Future<void> connect(String address) {
+    return _channel.invokeMethod(CONNECT, {'address': address});
   }
 
   static Future<void> disconnect() {

@@ -22,28 +22,18 @@ class BatteryStreamHandler implements EventChannel.StreamHandler {
   void setReader(final BluetoothReader reader) {
     if (reader instanceof Acr1255uj1Reader) {
       this.reader = (Acr1255uj1Reader) reader;
+
       this.reader.setOnBatteryLevelChangeListener((bluetoothReader, batteryLevel) -> {
         this.batteryLevel = batteryLevel;
         if (events != null) {
           new Handler(Looper.getMainLooper()).post(() -> events.success(batteryLevel));
-        } else {
-          Log.e(TAG, "Battery stream could not output events because the sink was null");
         }
       });
 
       this.reader.setOnBatteryLevelAvailableListener((bluetoothReader, batteryLevel, status) -> {
-        if (status == BluetoothGatt.GATT_SUCCESS) {
-          Log.i(TAG, "Battery level available");
-        } else {
-          Log.i(TAG, "Battery level not available");
-        }
-
         this.batteryLevel = batteryLevel;
-
         if (events != null) {
           new Handler(Looper.getMainLooper()).post(() -> events.success(batteryLevel));
-        } else {
-          Log.e(TAG, "Battery stream could not output events because the sink was null");
         }
       });
 
@@ -72,7 +62,7 @@ class BatteryStreamHandler implements EventChannel.StreamHandler {
     if (reader != null) reader.setOnBatteryLevelChangeListener(null);
     // Check if already disposed.
     if (events != null) {
-      events.endOfStream();
+      // events.endOfStream();
       events = null;
     }
   }

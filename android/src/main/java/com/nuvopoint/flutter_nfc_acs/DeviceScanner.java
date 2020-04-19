@@ -46,18 +46,19 @@ class DeviceScanner extends BluetoothPermissions implements StreamHandler {
   @Override
   public void onCancel(Object arguments) {
     stopScan();
-    events.endOfStream();
     events = null;
   }
 
   /* Device scan callback. */
   private BluetoothAdapter.LeScanCallback mLeScanCallback = (device, rssi, scanRecord) -> {
-    new Handler(Looper.getMainLooper()).post(() -> {
-      if (!btDevices.containsKey(device.getAddress())) {
-        btDevices.put(device.getAddress(), device.getName());
-        events.success(btDevices);
-      }
-    });
+    if (events != null) {
+      new Handler(Looper.getMainLooper()).post(() -> {
+        if (!btDevices.containsKey(device.getAddress())) {
+          btDevices.put(device.getAddress(), device.getName());
+          events.success(btDevices);
+        }
+      });
+    }
   };
 
   private void startScan() {
@@ -74,7 +75,6 @@ class DeviceScanner extends BluetoothPermissions implements StreamHandler {
 
   private void stopScan() {
     bluetoothAdapter.stopLeScan(mLeScanCallback);
-    events.endOfStream();
     scanning = false;
   }
 
@@ -90,8 +90,9 @@ class DeviceScanner extends BluetoothPermissions implements StreamHandler {
 
   @Override
   protected void afterPermissionsDenied() {
-    events.error(ERROR_NO_PERMISSIONS, "Location permissions are required", null);
-    events.endOfStream();
-    events = null;
+    if (events != null) {
+      events.error(ERROR_NO_PERMISSIONS, "Location permissions are required", null);
+      events = null;
+    }
   }
 }
