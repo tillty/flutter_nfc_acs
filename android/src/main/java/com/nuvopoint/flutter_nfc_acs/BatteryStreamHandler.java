@@ -60,10 +60,6 @@ class BatteryStreamHandler implements EventChannel.StreamHandler {
 
   void dispose() {
     if (reader != null) reader.setOnBatteryLevelChangeListener(null);
-    // Check if already disposed.
-    if (events != null) {
-      // events.endOfStream();
-      events = null;
-    }
+    events = null;
   }
 }

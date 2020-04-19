@@ -180,7 +180,6 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
 
   @Override
   public void onCancel(Object arguments) {
-    statusEvents.endOfStream();
     statusEvents = null;
   }
 
@@ -251,7 +250,6 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
     batteryStreamHandler.dispose();
 
     if (statusEvents != null) {
-      statusEvents.endOfStream();
       statusEvents = null;
     }
 

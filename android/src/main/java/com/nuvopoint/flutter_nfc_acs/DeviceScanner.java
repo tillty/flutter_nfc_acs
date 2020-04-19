@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.EventChannel.StreamHandler;
 
+import static android.content.ContentValues.TAG;
 import static com.nuvopoint.flutter_nfc_acs.FlutterNfcAcsPlugin.ERROR_NO_PERMISSIONS;
 
 class DeviceScanner extends BluetoothPermissions implements StreamHandler {
@@ -58,6 +60,8 @@ class DeviceScanner extends BluetoothPermissions implements StreamHandler {
           events.success(btDevices);
         }
       });
+    } else {
+      Log.w(TAG, "Could not output devices, because the event sink was null");
     }
   };
 

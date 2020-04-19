@@ -85,10 +85,6 @@ class CardStreamHandler implements EventChannel.StreamHandler {
       reader.setOnResponseApduAvailableListener(null);
       reader.setOnCardStatusChangeListener(null);
     }
-    // Check if already disposed.
-    if (events != null) {
-      // events.endOfStream();
-      events = null;
-    }
+    events = null;
   }
 }
