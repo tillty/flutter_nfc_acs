@@ -42,6 +42,10 @@ class DeviceScanner extends BluetoothPermissions implements StreamHandler {
       return;
     }
 
+    if (!btDevices.isEmpty()){
+      events.success(btDevices);
+    }
+
     startScan();
   }
 
