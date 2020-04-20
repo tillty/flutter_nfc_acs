@@ -32,7 +32,7 @@ class CardStreamHandler implements EventChannel.StreamHandler {
       reader.setOnResponseApduAvailableListener((_r, response, errorCode) -> {
         if (events != null) {
           if (errorCode == BluetoothReader.ERROR_SUCCESS) {
-            new Handler(Looper.getMainLooper()).post(() -> events.success(Utils.toHexString(Arrays.copyOf(response, response.length - 2))));
+            new Handler(Looper.getMainLooper()).post(() -> events.success(Utils.toHexString(Arrays.copyOf(response, response.length - 2)).trim()));
           } else {
             new Handler(Looper.getMainLooper()).post(() -> events.error("unknown_reader_error", String.valueOf(errorCode), null));
           }
