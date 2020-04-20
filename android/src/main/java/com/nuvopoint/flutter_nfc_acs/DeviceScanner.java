@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -26,7 +28,7 @@ class DeviceScanner extends BluetoothPermissions implements StreamHandler {
 
   private static final long SCAN_PERIOD = 10000;
 
-  DeviceScanner(BluetoothAdapter adapter, Activity activity) {
+  DeviceScanner(@NonNull BluetoothAdapter adapter, @NonNull Activity activity) {
     bluetoothAdapter = adapter;
     this.activity = activity;
     handler = new Handler();
@@ -93,7 +95,11 @@ class DeviceScanner extends BluetoothPermissions implements StreamHandler {
 
   @Override
   protected void afterPermissionsGranted() {
-    startScan();
+    if (bluetoothAdapter != null) {
+      startScan();
+    } else {
+      Log.e(TAG, "Bluetooth adapter was null, in the permission callback");
+    }
   }
 
   @Override

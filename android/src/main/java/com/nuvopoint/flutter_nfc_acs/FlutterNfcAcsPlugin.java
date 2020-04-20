@@ -134,11 +134,12 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
+    pendingMethodCall = call;
+    pendingResult = result;
+
     switch (call.method) {
       case CONNECT:
         if (!hasPermissions()) {
-          pendingMethodCall = call;
-          pendingResult = result;
           requestPermissions();
           return;
         }
@@ -158,8 +159,6 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
         break;
       case DISCONNECT:
         if (!hasPermissions()) {
-          pendingMethodCall = call;
-          pendingResult = result;
           requestPermissions();
           return;
         }
@@ -185,25 +184,29 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
 
   @Override
   protected void afterPermissionsGranted() {
-    switch (pendingMethodCall.method) {
-      case CONNECT:
-        final String address = pendingMethodCall.argument("address");
-        if (address == null) {
-          new Handler(Looper.getMainLooper()).post(() -> pendingResult.error(ERROR_MISSING_ADDRESS, "The address argument cannot be null", null));
-          return;
-        }
+    if (pendingMethodCall != null) {
+      switch (pendingMethodCall.method) {
+        case CONNECT:
+          final String address = pendingMethodCall.argument("address");
+          if (address == null) {
+            new Handler(Looper.getMainLooper()).post(() -> pendingResult.error(ERROR_MISSING_ADDRESS, "The address argument cannot be null", null));
+            return;
+          }
 
-        if (connectToReader(address)) {
+          if (connectToReader(address)) {
+            new Handler(Looper.getMainLooper()).post(() -> pendingResult.success(null));
+          } else {
+            new Handler(Looper.getMainLooper()).post(() -> pendingResult.error(ERROR_DEVICE_NOT_FOUND, "The bluetooth device could not be found", null));
+          }
+          break;
+        case DISCONNECT:
+          disconnectFromReader();
           new Handler(Looper.getMainLooper()).post(() -> pendingResult.success(null));
-        } else {
-          new Handler(Looper.getMainLooper()).post(() -> pendingResult.error(ERROR_DEVICE_NOT_FOUND, "The bluetooth device could not be found", null));
-        }
-        break;
-      case DISCONNECT:
-        disconnectFromReader();
-        new Handler(Looper.getMainLooper()).post(() -> pendingResult.success(null));
-        break;
-      default:
+          break;
+        default:
+      }
+    } else {
+      Log.e(TAG, "Could not resume the method call, as it was null");
     }
   }
 
