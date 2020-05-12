@@ -19,7 +19,7 @@ import static android.content.ContentValues.TAG;
 import static com.nuvopoint.flutter_nfc_acs.FlutterNfcAcsPlugin.ERROR_NO_PERMISSIONS;
 
 class DeviceScanner extends BluetoothPermissions implements StreamHandler {
-  private final HashMap<String, String> btDevices;
+  private HashMap<String, String> btDevices;
   private final BluetoothAdapter bluetoothAdapter;
   private EventSink events;
   private final Handler handler;
