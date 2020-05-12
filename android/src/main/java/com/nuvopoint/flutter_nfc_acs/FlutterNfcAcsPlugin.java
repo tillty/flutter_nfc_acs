@@ -304,7 +304,7 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
       if (errorCode == BluetoothReader.ERROR_SUCCESS) {
         Log.i(TAG, "Authentication successful");
         Log.i(TAG, "Transmitting request to turn off ACR1255U-J1 sleep mode");
-        reader2.transmitEscapeCommand(Utils.hexString2Bytes(requestTurnOffSleepMode));
+        reader2.transmitEscapeCommand(Utils.hexStringToByteArray(requestTurnOffSleepMode));
         // When a compatible reader is detected, we hook up the event streams.
         cardStreamHandler.setReader(reader2);
         cardStreamHandler.startPolling();
