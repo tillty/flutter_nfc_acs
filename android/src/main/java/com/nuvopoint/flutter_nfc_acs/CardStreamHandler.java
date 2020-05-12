@@ -42,7 +42,7 @@ class CardStreamHandler implements EventChannel.StreamHandler {
       reader.setOnCardStatusChangeListener((bluetoothReader, cardStatusCode) -> {
         Log.i(TAG, "Card status: " + getCardStatusString(cardStatusCode));
         if (cardStatusCode == BluetoothReader.CARD_STATUS_PRESENT) {
-          bluetoothReader.transmitApdu(Utils.hexString2Bytes(requestCardId));
+          bluetoothReader.transmitApdu(Utils.hexStringToByteArray(requestCardId));
         }
       });
     } else {
