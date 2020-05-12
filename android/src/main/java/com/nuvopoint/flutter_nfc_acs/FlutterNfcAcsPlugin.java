@@ -288,13 +288,9 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
       reader.setOnEnableNotificationCompleteListener((bluetoothReader, result) -> {
         if (result != BluetoothGatt.GATT_SUCCESS) {
           Log.w(TAG, "ENABLE DID NOT GET SET!");
-        } else {
-          Log.w(TAG, "ENABLE NOTIFICATIONS READY!");
-
-          if (!bluetoothReader.authenticate(DEFAULT_1255_MASTER_KEY)) {
+        } else if (!bluetoothReader.authenticate(DEFAULT_1255_MASTER_KEY)) {
             Log.w(TAG, "CARD READER NOT READY!");
           }
-        }
       });
 
       // Enables the reader's battery level, card status and response notifications.
