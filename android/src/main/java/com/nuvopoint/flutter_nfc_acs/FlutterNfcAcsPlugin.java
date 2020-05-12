@@ -281,7 +281,6 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
       }
 
       this.reader = reader;
-      reader.transmitEscapeCommand(Utils.hexString2Bytes(requestTurnOffSleepMode));
       batteryStreamHandler.setReader(reader);
       setupAuthenticationListener(reader);
 
@@ -289,8 +288,8 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
         if (result != BluetoothGatt.GATT_SUCCESS) {
           Log.w(TAG, "ENABLE DID NOT GET SET!");
         } else if (!bluetoothReader.authenticate(DEFAULT_1255_MASTER_KEY)) {
-            Log.w(TAG, "CARD READER NOT READY!");
-          }
+          Log.w(TAG, "CARD READER NOT READY!");
+        }
       });
 
       // Enables the reader's battery level, card status and response notifications.
@@ -304,6 +303,8 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
     reader.setOnAuthenticationCompleteListener((reader2, errorCode) -> {
       if (errorCode == BluetoothReader.ERROR_SUCCESS) {
         Log.i(TAG, "Authentication successful");
+        Log.i(TAG, "Transmitting request to turn off ACR1255U-J1 sleep mode");
+        reader2.transmitEscapeCommand(Utils.hexString2Bytes(requestTurnOffSleepMode));
         // When a compatible reader is detected, we hook up the event streams.
         cardStreamHandler.setReader(reader2);
         cardStreamHandler.startPolling();
