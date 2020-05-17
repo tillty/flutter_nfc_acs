@@ -64,7 +64,7 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
 
   // "ACR1255U-J1 Auth" in text;
   private static final byte[] DEFAULT_1255_MASTER_KEY = {(byte) 65, 67, 82, 49, 50, 53, 53, 85, 45, 74, 49, 32, 65, 117, 116, 104};
-  private static final byte[] requestTurnOffSleepMode = {(byte) 0xE0, 0x00, 0x00, 0x48, 0x05};
+  private static final byte[] requestTurnOffSleepMode = {(byte) 0xE0, 0x00, 0x00, 0x48, 0x04};
 
   private ActivityPluginBinding activityBinding;
   private BluetoothManager bluetoothManager;
@@ -305,7 +305,7 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
         reader2.transmitEscapeCommand(requestTurnOffSleepMode);
         // When a compatible reader is detected, we hook up the event streams.
         cardStreamHandler.setReader(reader2);
-        //cardStreamHandler.startPolling();
+        cardStreamHandler.startPolling();
       } else {
         Log.w(TAG, "Authentication failed");
       }
