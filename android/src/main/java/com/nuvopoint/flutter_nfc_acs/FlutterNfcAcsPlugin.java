@@ -310,8 +310,6 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
         Log.w(TAG, "Authentication failed");
       }
     });
-
-    reader.setOnEscapeResponseAvailableListener();
   }
 
   /**
