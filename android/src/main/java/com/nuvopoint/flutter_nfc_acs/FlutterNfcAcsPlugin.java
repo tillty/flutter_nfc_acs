@@ -305,7 +305,7 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
         reader2.transmitEscapeCommand(requestTurnOffSleepMode);
         // When a compatible reader is detected, we hook up the event streams.
         cardStreamHandler.setReader(reader2);
-        cardStreamHandler.startPolling();
+        //cardStreamHandler.startPolling();
       } else {
         Log.w(TAG, "Authentication failed");
       }
