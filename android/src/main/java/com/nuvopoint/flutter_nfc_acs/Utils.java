@@ -11,9 +11,6 @@ package com.nuvopoint.flutter_nfc_acs;
 
 import java.util.Locale;
 
-import android.text.Editable;
-import android.widget.EditText;
-
 class Utils {
   static String toHexString(byte[] array) {
 
@@ -32,39 +29,53 @@ class Utils {
     return bufferString.toString();
   }
 
-//  private static boolean isHexNumber(byte value) {
-//    if (!(value >= '0' && value <= '9') && !(value >= 'A' && value <= 'F')
-//        && !(value >= 'a' && value <= 'f')) {
-//      return false;
-//    }
-//    return true;
-//  }
+  static byte[] toByteArray(String hexString) {
+    int hexStringLength = hexString.length();
+    byte[] byteArray;
+    int count = 0;
+    char c;
+    int i;
 
-//  public static boolean isHexNumber(String string) {
-//    if (string == null)
-//      throw new NullPointerException("string was null");
-//
-//    boolean flag = true;
-//
-//    for (int i = 0; i < string.length(); i++) {
-//      char cc = string.charAt(i);
-//      if (!isHexNumber((byte) cc)) {
-//        flag = false;
-//        break;
-//      }
-//    }
-//    return flag;
-//  }
+    // Count number of hex characters
+    for (i = 0; i < hexStringLength; i++) {
 
-//  private static byte uniteBytes(byte src0, byte src1) {
-//    byte _b0 = Byte.decode("0x" + new String(new byte[] { src0 }))
-//        .byteValue();
-//    _b0 = (byte) (_b0 << 4);
-//    byte _b1 = Byte.decode("0x" + new String(new byte[] { src1 }))
-//        .byteValue();
-//    byte ret = (byte) (_b0 ^ _b1);
-//    return ret;
-//  }
+      c = hexString.charAt(i);
+      if (c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a'
+          && c <= 'f') {
+        count++;
+      }
+    }
+
+    byteArray = new byte[(count + 1) / 2];
+    boolean first = true;
+    int len = 0;
+    int value;
+    for (i = 0; i < hexStringLength; i++) {
+
+      c = hexString.charAt(i);
+      if (c >= '0' && c <= '9') {
+        value = c - '0';
+      } else if (c >= 'A' && c <= 'F') {
+        value = c - 'A' + 10;
+      } else if (c >= 'a' && c <= 'f') {
+        value = c - 'a' + 10;
+      } else {
+        value = -1;
+      }
+
+      if (value >= 0) {
+        if (first) {
+          byteArray[len] = (byte) (value << 4);
+        } else {
+          byteArray[len] |= value;
+          len++;
+        }
+        first = !first;
+      }
+    }
+
+    return byteArray;
+  }
 
   static byte[] hexStringToByteArray(String s) {
     int len = s.length();
