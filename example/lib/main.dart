@@ -22,7 +22,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Flutter NFC ACS'),
         ),
         body: StreamBuilder<List<AcsDevice>>(
-          stream: FlutterNfcAcs.devices,
+          stream: FlutterNfcAcs.devices.map((d) => (d.where((asc) => (asc.name?.indexOf('ACR') ?? -1) != -1)).toList()),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               print(snapshot.error);

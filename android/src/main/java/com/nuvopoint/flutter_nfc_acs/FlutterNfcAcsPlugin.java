@@ -62,9 +62,15 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   private static final String DISCONNECTING = "DISCONNECTING";
   private static final String UNKNOWN_CONNECTION_STATE = "UNKNOWN_CONNECTION_STATE";
 
+  // Sleep mode options
+  /*private static final byte SLEEP_60_SEC = 0x00;
+  private static final byte SLEEP_90_SEC = 0x01;
+  private static final byte SLEEP_120_SEC = 0x02;
+  private static final byte SLEEP_180_SEC = 0x03;*/
+  private static final byte SLEEP_NEVER = 0x04;
+
   // "ACR1255U-J1 Auth" in text;
   private static final byte[] DEFAULT_1255_MASTER_KEY = {(byte) 65, 67, 82, 49, 50, 53, 53, 85, 45, 74, 49, 32, 65, 117, 116, 104};
-  private static final byte[] requestTurnOffSleepMode = {(byte) 0xE0, 0x00, 0x00, 0x48, 0x04};
 
   private ActivityPluginBinding activityBinding;
   private BluetoothManager bluetoothManager;
@@ -84,10 +90,6 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   // Variables for pending permissions
   private MethodCall pendingMethodCall;
   private MethodChannel.Result pendingResult;
-
-  // TEMP
-  //private BluetoothDevice device;
-  //private BluetoothGatt gatt;
 
   @Override
   public void onAttachedToEngine(final @NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -284,9 +286,9 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
 
       reader.setOnEnableNotificationCompleteListener((bluetoothReader, result) -> {
         if (result != BluetoothGatt.GATT_SUCCESS) {
-          Log.w(TAG, "ENABLE DID NOT GET SET!");
+          Log.w(TAG, "Enabling notifications failed");
         } else if (!bluetoothReader.authenticate(DEFAULT_1255_MASTER_KEY)) {
-          Log.w(TAG, "CARD READER NOT READY!");
+          Log.w(TAG, "Card reader not ready");
         }
       });
 
@@ -298,14 +300,24 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   }
 
   private void setupAuthenticationListener(BluetoothReader reader) {
-    reader.setOnAuthenticationCompleteListener((reader2, errorCode) -> {
+    reader.setOnAuthenticationCompleteListener((r, errorCode) -> {
       if (errorCode == BluetoothReader.ERROR_SUCCESS) {
         Log.i(TAG, "Authentication successful");
-        Log.i(TAG, "Transmitting request to turn off ACR1255U-J1 sleep mode");
-        // reader2.transmitEscapeCommand(requestTurnOffSleepMode);
+
         // When a compatible reader is detected, we hook up the event streams.
-        cardStreamHandler.setReader(reader2);
-        cardStreamHandler.startPolling();
+        cardStreamHandler.setReader(r);
+
+        reader.setOnEscapeResponseAvailableListener((re, response, code) -> {
+          re.setOnEscapeResponseAvailableListener(null);
+          if (code == BluetoothReader.ERROR_SUCCESS) {
+            cardStreamHandler.startPolling();
+          } else {
+            Log.w(TAG, "Authentication failed");
+          }
+        });
+
+        final byte[] sleepModeFormat = {(byte) 0xE0, 0x00, 0x00, 0x48, SLEEP_NEVER};
+        reader.transmitEscapeCommand(sleepModeFormat);
       } else {
         Log.w(TAG, "Authentication failed");
       }
