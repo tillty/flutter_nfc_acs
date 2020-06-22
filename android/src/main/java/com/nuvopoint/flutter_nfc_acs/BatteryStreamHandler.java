@@ -25,21 +25,28 @@ class BatteryStreamHandler implements EventChannel.StreamHandler {
 
       this.reader.setOnBatteryLevelChangeListener((bluetoothReader, batteryLevel) -> {
         this.batteryLevel = batteryLevel;
-        if (events != null) {
-          new Handler(Looper.getMainLooper()).post(() -> events.success(batteryLevel));
-        }
+
+        new Handler(Looper.getMainLooper()).post(() -> {
+          if (events != null) {
+            events.success(batteryLevel);
+          }
+        });
       });
 
       this.reader.setOnBatteryLevelAvailableListener((bluetoothReader, batteryLevel, status) -> {
         this.batteryLevel = batteryLevel;
-        if (events != null) {
-          new Handler(Looper.getMainLooper()).post(() -> events.success(batteryLevel));
-        }
+        new Handler(Looper.getMainLooper()).post(() -> {
+          if (events != null) {
+            events.success(batteryLevel);
+          }
+        });
       });
 
-      if (events != null && batteryLevel != -1) {
-        new Handler(Looper.getMainLooper()).post(() -> events.success(batteryLevel));
-      }
+      new Handler(Looper.getMainLooper()).post(() -> {
+        if (events != null && batteryLevel != -1) {
+          events.success(batteryLevel);
+        }
+      });
     } else {
       Log.i(TAG, "Battery stream not supported for this device");
     }
@@ -48,9 +55,11 @@ class BatteryStreamHandler implements EventChannel.StreamHandler {
   @Override
   public void onListen(Object arguments, EventChannel.EventSink events) {
     this.events = events;
-    if (batteryLevel != -1) {
-      new Handler(Looper.getMainLooper()).post(() -> events.success(batteryLevel));
-    }
+    new Handler(Looper.getMainLooper()).post(() -> {
+      if (events != null && batteryLevel != -1) {
+        events.success(batteryLevel);
+      }
+    });
   }
 
   @Override

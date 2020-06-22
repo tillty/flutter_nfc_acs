@@ -240,7 +240,11 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   protected void afterPermissionsDenied() {
     if (pendingResultComplete) return;
     pendingResultComplete = true;
-    new Handler(Looper.getMainLooper()).post(() -> pendingResult.error(ERROR_NO_PERMISSIONS, "Location permissions are required", null));
+    new Handler(Looper.getMainLooper()).post(() -> {
+      if (pendingResult != null) {
+        pendingResult.error(ERROR_NO_PERMISSIONS, "Location permissions are required", null);
+      }
+    });
   }
 
   private void init() {
@@ -280,10 +284,6 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
     deviceBatteryChannel.setStreamHandler(null);
     batteryStreamHandler.dispose();
 
-    if (statusEvents != null) {
-      statusEvents = null;
-    }
-
     deviceStatusChannel.setStreamHandler(null);
 
     activityBinding.removeRequestPermissionsResultListener(deviceScanner);
@@ -301,8 +301,11 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
     mBluetoothReaderManager = new BluetoothReaderManager();
     mBluetoothReaderManager.setOnReaderDetectionListener(reader -> {
       if (!(reader instanceof Acr1255uj1Reader)) {
-        if (statusEvents != null)
-          new Handler(Looper.getMainLooper()).post(() -> statusEvents.error(ERROR_DEVICE_NOT_SUPPORTED, "Device not supported", null));
+        new Handler(Looper.getMainLooper()).post(() -> {
+          if (statusEvents != null) {
+            statusEvents.error(ERROR_DEVICE_NOT_SUPPORTED, "Device not supported", null);
+          }
+        });
         Log.w(TAG, "Reader not supported");
         disconnectFromReader();
         return;
@@ -444,23 +447,41 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
 
   private void notifyStatusListeners() {
     // We can't send a status back if no one is listening for it.
-    if (statusEvents != null) {
-      switch (mConnectState) {
-        case BluetoothReader.STATE_CONNECTED:
-          new Handler(Looper.getMainLooper()).post(() -> statusEvents.success(CONNECTED));
-          break;
-        case BluetoothReader.STATE_CONNECTING:
-          new Handler(Looper.getMainLooper()).post(() -> statusEvents.success(CONNECTING));
-          break;
-        case BluetoothReader.STATE_DISCONNECTED:
-          new Handler(Looper.getMainLooper()).post(() -> statusEvents.success(DISCONNECTED));
-          break;
-        case BluetoothReader.STATE_DISCONNECTING:
-          new Handler(Looper.getMainLooper()).post(() -> statusEvents.success(DISCONNECTING));
-          break;
-        default:
-          new Handler(Looper.getMainLooper()).post(() -> statusEvents.success(UNKNOWN_CONNECTION_STATE));
-      }
+    switch (mConnectState) {
+      case BluetoothReader.STATE_CONNECTED:
+        new Handler(Looper.getMainLooper()).post(() -> {
+          if (statusEvents != null) {
+            statusEvents.success(CONNECTED);
+          }
+        });
+        break;
+      case BluetoothReader.STATE_CONNECTING:
+        new Handler(Looper.getMainLooper()).post(() -> {
+          if (statusEvents != null) {
+            statusEvents.success(CONNECTING);
+          }
+        });
+        break;
+      case BluetoothReader.STATE_DISCONNECTED:
+        new Handler(Looper.getMainLooper()).post(() -> {
+          if (statusEvents != null) {
+            statusEvents.success(DISCONNECTED);
+          }
+        });
+        break;
+      case BluetoothReader.STATE_DISCONNECTING:
+        new Handler(Looper.getMainLooper()).post(() -> {
+          if (statusEvents != null) {
+            statusEvents.success(DISCONNECTING);
+          }
+        });
+        break;
+      default:
+        new Handler(Looper.getMainLooper()).post(() -> {
+          if (statusEvents != null) {
+            statusEvents.success(UNKNOWN_CONNECTION_STATE);
+          }
+        });
     }
   }
 }
