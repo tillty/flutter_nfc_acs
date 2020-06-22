@@ -369,7 +369,7 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   }
 
   @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-  private void onResume() {
+  public void onResume() {
     if (bluetoothManager.getConnectedDevices(BluetoothProfile.STATE_CONNECTED).isEmpty()) {
       connectToReader();
     }
