@@ -194,31 +194,45 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
 
   @Override
   protected void afterPermissionsGranted() {
+    if (pendingResultComplete) return;
+    pendingResultComplete = true;
     if (pendingMethodCall != null) {
-      if (pendingResultComplete) return;
-      pendingResultComplete = true;
       switch (pendingMethodCall.method) {
         case CONNECT:
           address = pendingMethodCall.argument("address");
           if (address == null) {
-            new Handler(Looper.getMainLooper()).post(() -> pendingResult.error(ERROR_MISSING_ADDRESS, "The address argument cannot be null", null));
+            new Handler(Looper.getMainLooper()).post(() -> {
+              if (pendingMethodCall != null) {
+                pendingResult.error(ERROR_MISSING_ADDRESS, "The address argument cannot be null", null);
+              }
+            });
             return;
           }
 
           if (connectToReader()) {
-            new Handler(Looper.getMainLooper()).post(() -> pendingResult.success(null));
+            new Handler(Looper.getMainLooper()).post(() -> {
+              if (pendingMethodCall != null) {
+                pendingResult.success(null);
+              }
+            });
           } else {
-            new Handler(Looper.getMainLooper()).post(() -> pendingResult.error(ERROR_DEVICE_NOT_FOUND, "The bluetooth device could not be found", null));
+            new Handler(Looper.getMainLooper()).post(() -> {
+              if (pendingMethodCall != null) {
+                pendingResult.error(ERROR_DEVICE_NOT_FOUND, "The bluetooth device could not be found", null);
+              }
+            });
           }
           break;
         case DISCONNECT:
           disconnectFromReader();
-          new Handler(Looper.getMainLooper()).post(() -> pendingResult.success(null));
+          new Handler(Looper.getMainLooper()).post(() -> {
+            if (pendingMethodCall != null) {
+              pendingResult.success(null);
+            }
+          });
           break;
         default:
       }
-    } else {
-      Log.e(TAG, "Could not resume the method call, as it was null");
     }
   }
 
@@ -369,7 +383,7 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   }
 
   @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    public void connectIfDisconnected() {
+  public void connectIfDisconnected() {
     if (address != null && mConnectState == BluetoothReader.STATE_DISCONNECTED) {
       connectToReader();
     }
