@@ -94,6 +94,7 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   // Variables for pending permissions
   private MethodCall pendingMethodCall;
   private MethodChannel.Result pendingResult;
+  private boolean pendingResultComplete = false;
 
   // The address is kept in memory in case of life cycle events
   private String address;
@@ -144,6 +145,7 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
     pendingMethodCall = call;
     pendingResult = result;
+    pendingResultComplete = false;
 
     switch (call.method) {
       case CONNECT:
@@ -193,6 +195,8 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   @Override
   protected void afterPermissionsGranted() {
     if (pendingMethodCall != null) {
+      if (pendingResultComplete) return;
+      pendingResultComplete = true;
       switch (pendingMethodCall.method) {
         case CONNECT:
           address = pendingMethodCall.argument("address");
@@ -220,6 +224,8 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
 
   @Override
   protected void afterPermissionsDenied() {
+    if (pendingResultComplete) return;
+    pendingResultComplete = true;
     new Handler(Looper.getMainLooper()).post(() -> pendingResult.error(ERROR_NO_PERMISSIONS, "Location permissions are required", null));
   }
 

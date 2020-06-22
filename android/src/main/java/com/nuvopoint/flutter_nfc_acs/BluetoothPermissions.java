@@ -11,11 +11,11 @@ import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener;
 
 abstract class BluetoothPermissions implements RequestPermissionsResultListener {
   // A code we've defined, to identify the permission request.
-  private static final int REQUEST_COARSE_LOCATION_PERMISSIONS = 548351319;
+  private static final int REQUEST_FINE_LOCATION_PERMISSIONS = 548351319;
 
   @Override
   public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-    if (requestCode == REQUEST_COARSE_LOCATION_PERMISSIONS) {
+    if (requestCode == REQUEST_FINE_LOCATION_PERMISSIONS) {
       if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
         afterPermissionsGranted();
       } else {
@@ -31,13 +31,13 @@ abstract class BluetoothPermissions implements RequestPermissionsResultListener 
     ActivityCompat.requestPermissions(
         getActivity(),
         new String[]{
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION
         },
-        REQUEST_COARSE_LOCATION_PERMISSIONS);
+        REQUEST_FINE_LOCATION_PERMISSIONS);
   }
 
   boolean hasPermissions() {
-    return ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    return ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
   }
 
   protected abstract Activity getActivity();
