@@ -12,6 +12,9 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.acs.bluetooth.Acr1255uj1Reader;
 import com.acs.bluetooth.BluetoothReader;
@@ -21,6 +24,7 @@ import com.acs.bluetooth.BluetoothReaderManager;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.StreamHandler;
 import io.flutter.plugin.common.MethodCall;
@@ -32,7 +36,7 @@ import static android.content.ContentValues.TAG;
 /**
  * FlutterNfcAcsPlugin
  */
-public class FlutterNfcAcsPlugin extends BluetoothPermissions implements FlutterPlugin, ActivityAware, MethodCallHandler, StreamHandler {
+public class FlutterNfcAcsPlugin extends BluetoothPermissions implements FlutterPlugin, ActivityAware, MethodCallHandler, StreamHandler, LifecycleObserver {
   // The method channel's commands
   private static final String CONNECT = "CONNECT";
   private static final String DISCONNECT = "DISCONNECT";
@@ -91,6 +95,9 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   private MethodCall pendingMethodCall;
   private MethodChannel.Result pendingResult;
 
+  // The address is kept in memory in case of life cycle events
+  private String address;
+
   @Override
   public void onAttachedToEngine(final @NonNull FlutterPluginBinding flutterPluginBinding) {
     context = flutterPluginBinding.getApplicationContext();
@@ -145,13 +152,13 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
           return;
         }
 
-        final String address = call.argument("address");
+        address = call.argument("address");
         if (address == null) {
           new Handler(Looper.getMainLooper()).post(() -> result.error(ERROR_MISSING_ADDRESS, "The address argument cannot be null", null));
           return;
         }
 
-        if (connectToReader(address)) {
+        if (connectToReader()) {
           new Handler(Looper.getMainLooper()).post(() -> result.success(null));
         } else {
           new Handler(Looper.getMainLooper()).post(() -> result.error(ERROR_DEVICE_NOT_FOUND, "The bluetooth device could not be found", null));
@@ -188,13 +195,13 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
     if (pendingMethodCall != null) {
       switch (pendingMethodCall.method) {
         case CONNECT:
-          final String address = pendingMethodCall.argument("address");
+          address = pendingMethodCall.argument("address");
           if (address == null) {
             new Handler(Looper.getMainLooper()).post(() -> pendingResult.error(ERROR_MISSING_ADDRESS, "The address argument cannot be null", null));
             return;
           }
 
-          if (connectToReader(address)) {
+          if (connectToReader()) {
             new Handler(Looper.getMainLooper()).post(() -> pendingResult.success(null));
           } else {
             new Handler(Looper.getMainLooper()).post(() -> pendingResult.error(ERROR_DEVICE_NOT_FOUND, "The bluetooth device could not be found", null));
@@ -217,8 +224,8 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   }
 
   private void init() {
-    // TODO: Lifecycle support
-    // Lifecycle lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding);
+    Lifecycle lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding);
+    lifecycle.addObserver(this);
     bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
     if (bluetoothManager == null) return;
 
@@ -347,12 +354,20 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
       if (newState == BluetoothProfile.STATE_CONNECTED) {
         mBluetoothReaderManager.detectReader(gatt, mGattCallback);
       } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-        disconnectFromReader();
+        mBluetoothGatt.disconnect();
+        mBluetoothGatt.close();
+        mBluetoothGatt = null;
+        setConnectionState(BluetoothReader.STATE_DISCONNECTED);
       }
     });
   }
 
-  private boolean connectToReader(@NonNull final String address) {
+  @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+  public boolean connectToReader() {
+    if (address == null) {
+      return false;
+    }
+
     if (bluetoothManager == null) {
       setConnectionState(BluetoothReader.STATE_DISCONNECTED);
       Log.e(TAG, "BluetoothManager was null - cannot connect. The device might not have a bluetooth adapter.");
@@ -362,6 +377,7 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
     BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
     if (!bluetoothAdapter.isEnabled()) {
       Log.w(TAG, "Bluetooth was not enabled!");
+      return false;
     }
 
     final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
@@ -386,12 +402,11 @@ public class FlutterNfcAcsPlugin extends BluetoothPermissions implements Flutter
   /**
    * Disconnects the reader and releases resources that are dependant on being connected, which are irrelevant when disconnected.
    */
-  private void disconnectFromReader() {
+  @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+  public void disconnectFromReader() {
     // Close existing GATT connection
     if (mBluetoothGatt != null) {
       mBluetoothGatt.disconnect();
-      mBluetoothGatt.close();
-      mBluetoothGatt = null;
     }
 
     setConnectionState(BluetoothReader.STATE_DISCONNECTED);
