@@ -21,17 +21,17 @@ class FlutterNfcAcs {
   static const String DISCONNECTING = "DISCONNECTING";
   static const String UNKNOWN_CONNECTION_STATE = "UNKNOWN_CONNECTION_STATE";
 
-  static Stream<List<AcsDevice>> _devices;
-  static Stream<String> _connectionStatus;
-  static Stream<String> _cards;
-  static Stream<int> _batteryStatus;
+  static Stream<List<AcsDevice>>? _devices;
+  static Stream<String>? _connectionStatus;
+  static Stream<String>? _cards;
+  static Stream<int>? _batteryStatus;
 
   static Stream<List<AcsDevice>> get devices {
     _devices ??= _devicesChannel.receiveBroadcastStream().map<List<AcsDevice>>((data) {
       return (data as Map<dynamic, dynamic>).entries.map<AcsDevice>((m) => AcsDevice(m.key, m.value)).toList();
     });
 
-    return _devices;
+    return _devices!;
   }
 
   static Stream<String> get connectionStatus {
@@ -39,7 +39,7 @@ class FlutterNfcAcs {
       return data as String;
     });
 
-    return _connectionStatus;
+    return _connectionStatus!;
   }
 
   static Stream<String> get cards {
@@ -47,7 +47,7 @@ class FlutterNfcAcs {
       return data as String;
     });
 
-    return _cards;
+    return _cards!;
   }
 
   static Stream<int> get batteryStatus {
@@ -55,7 +55,7 @@ class FlutterNfcAcs {
       return data as int;
     });
 
-    return _batteryStatus;
+    return _batteryStatus!;
   }
 
   static Future<void> connect(String address) {
