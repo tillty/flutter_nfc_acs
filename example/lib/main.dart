@@ -14,6 +14,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late final Stream<List<AcsDevice>> _stream;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _stream = FlutterNfcAcs.devices.map((d) => (d.where((asc) => (asc.name.indexOf('ACR')) != -1)).toList());
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,7 +31,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Flutter NFC ACS'),
         ),
         body: StreamBuilder<List<AcsDevice>>(
-          stream: FlutterNfcAcs.devices.map((d) => (d.where((asc) => (asc.name.indexOf('ACR')) != -1)).toList()),
+          stream: _stream,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               print(snapshot.error);
@@ -32,7 +41,7 @@ class _MyAppState extends State<MyApp> {
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, i) {
                   final item = snapshot.data![i];
-                  return RaisedButton(
+                  return ElevatedButton(
                     key: ValueKey(item.address),
                     child: Text(item.name + ' -- ' + item.address),
                     onPressed: () => Navigator.push(
@@ -51,6 +60,11 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }
 
@@ -88,7 +102,7 @@ class _DeviceRouteState extends State<DeviceRoute> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            RaisedButton(
+            ElevatedButton(
               child: Text(connection == FlutterNfcAcs.DISCONNECTED ? 'Connect' : 'Disconnect'),
               onPressed: () => connection == FlutterNfcAcs.DISCONNECTED
                   ? FlutterNfcAcs.connect(widget.device.address).catchError((err) => setState(() => error = err))

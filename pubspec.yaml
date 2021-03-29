@@ -31,8 +31,6 @@ flutter:
       android:
         package: com.nuvopoint.flutter_nfc_acs
         pluginClass: FlutterNfcAcsPlugin
-      ios:
-        pluginClass: FlutterNfcAcsPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
