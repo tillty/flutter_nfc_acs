@@ -28,7 +28,12 @@ class FlutterNfcAcs {
 
   static Stream<List<AcsDevice>> get devices {
     _devices ??= _devicesChannel.receiveBroadcastStream().map<List<AcsDevice>>((data) {
-      return (data as Map<dynamic, dynamic>).entries.map<AcsDevice>((m) => AcsDevice(m.key, m.value)).toList();
+      return (data as Map<dynamic, dynamic>).entries.map<AcsDevice>((m) {
+        print(m.key);
+        print(m.value);
+        print('--------------');
+        return AcsDevice(m.key, name: m.value);
+      }).toList();
     });
 
     return _devices!;

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flutter_nfc_acs.iml" filepath="$PROJECT_DIR$/.idea/modules/flutter_nfc_acs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ascbt/flutter_nfc_acs.ascbt.iml" filepath="$PROJECT_DIR$/.idea/modules/ascbt/flutter_nfc_acs.ascbt.iml" />
+    </modules>
+  </component>
+</project>

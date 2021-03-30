@@ -34,5 +34,5 @@ android {
 }
 
 dependencies {
-    compileOnly fileTree(dir: 'acsbt', include: ['*.aar'])
+    implementation fileTree(dir: "acsbt", include: ["*.jar"])
 }

@@ -20,7 +20,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    _stream = FlutterNfcAcs.devices.map((d) => (d.where((asc) => (asc.name.indexOf('ACR')) != -1)).toList());
+    _stream = FlutterNfcAcs.devices.map((d) => (d.where((asc) => (asc.name?.indexOf('ACR') ?? -1) != -1)).toList());
   }
 
   @override
@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
                   final item = snapshot.data![i];
                   return ElevatedButton(
                     key: ValueKey(item.address),
-                    child: Text(item.name + ' -- ' + item.address),
+                    child: Text((item.name ?? 'No name') + ' -- ' + item.address),
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -108,7 +108,7 @@ class _DeviceRouteState extends State<DeviceRoute> {
                   ? FlutterNfcAcs.connect(widget.device.address).catchError((err) => setState(() => error = err))
                   : FlutterNfcAcs.disconnect(),
             ),
-            Text(widget.device.name),
+            Text(widget.device.name ?? 'No name'),
             StreamBuilder<int>(
               stream: FlutterNfcAcs.batteryStatus,
               builder: (context, snapshot) {
