@@ -1,4 +1,5 @@
 enum AcsModel {
+  // ignore: constant_identifier_names
   ACR1255U_J1,
 }
 

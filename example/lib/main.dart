@@ -5,10 +5,12 @@ import 'package:flutter_nfc_acs/flutter_nfc_acs.dart';
 import 'package:flutter_nfc_acs/models.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -34,8 +36,7 @@ class _MyAppState extends State<MyApp> {
           stream: _stream,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              print(snapshot.error);
-              return Text('Error');
+              return const Text('Error');
             } else if (snapshot.hasData) {
               return ListView.builder(
                 itemCount: snapshot.data!.length,
@@ -54,7 +55,7 @@ class _MyAppState extends State<MyApp> {
                 },
               );
             } else {
-              return Text('No data yet');
+              return const Text('No data yet');
             }
           },
         ),
@@ -112,10 +113,11 @@ class _DeviceRouteState extends State<DeviceRoute> {
             StreamBuilder<int>(
               stream: FlutterNfcAcs.batteryStatus,
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.active)
+                if (snapshot.connectionState == ConnectionState.active) {
                   return Text('Battery level: ' + snapshot.data.toString());
-                else
+                } else {
                   return const SizedBox.shrink();
+                }
               },
             ),
             StreamBuilder<String>(
@@ -123,15 +125,15 @@ class _DeviceRouteState extends State<DeviceRoute> {
               builder: (context, snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
-                    return Text('Card: no connection');
+                    return const Text('Card: no connection');
                   case ConnectionState.waiting:
-                    return Text('Card: waiting');
+                    return const Text('Card: waiting');
                   case ConnectionState.active:
                     return Text('Card: ' + snapshot.data.toString());
                   case ConnectionState.done:
-                    return Text('Card: done');
+                    return const Text('Card: done');
                   default:
-                    return Text('Card: unknown state');
+                    return const Text('Card: unknown state');
                 }
               },
             ),
@@ -140,15 +142,15 @@ class _DeviceRouteState extends State<DeviceRoute> {
               builder: (context, snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
-                    return Text('Connection: nope');
+                    return const Text('Connection: nope');
                   case ConnectionState.waiting:
-                    return Text('Connection: waiting');
+                    return const Text('Connection: waiting');
                   case ConnectionState.active:
                     return Text('Connection: ' + snapshot.data.toString());
                   case ConnectionState.done:
-                    return Text('Connection: done');
+                    return const Text('Connection: done');
                   default:
-                    return Text('Connection: unknown state');
+                    return const Text('Connection: unknown state');
                 }
               },
             ),

@@ -1,14 +1,16 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_nfc_acs/models.dart';
 
 class FlutterNfcAcs {
-  static const MethodChannel _channel = const MethodChannel('flutter.nuvopoint.com/nfc/acs');
-  static const EventChannel _devicesChannel = const EventChannel('flutter.nuvopoint.com/nfc/acs/devices');
-  static const EventChannel _deviceBatteryChannel = const EventChannel('flutter.nuvopoint.com/nfc/acs/device/battery');
-  static const EventChannel _deviceStatusChannel = const EventChannel("flutter.nuvopoint.com/nfc/acs/device/status");
-  static const EventChannel _deviceCardChannel = const EventChannel("flutter.nuvopoint.com/nfc/acs/device/card");
+  static const MethodChannel _channel = MethodChannel('flutter.tillty.com/nfc/acs');
+  static const EventChannel _devicesChannel = EventChannel('flutter.tillty.com/nfc/acs/devices');
+  static const EventChannel _deviceBatteryChannel = EventChannel('flutter.tillty.com/nfc/acs/device/battery');
+  static const EventChannel _deviceStatusChannel = EventChannel("flutter.tillty.com/nfc/acs/device/status");
+  static const EventChannel _deviceCardChannel = EventChannel("flutter.tillty.com/nfc/acs/device/card");
 
   // _channel's commands
   static const String CONNECT = 'CONNECT';
@@ -29,9 +31,6 @@ class FlutterNfcAcs {
   static Stream<List<AcsDevice>> get devices {
     _devices ??= _devicesChannel.receiveBroadcastStream().map<List<AcsDevice>>((data) {
       return (data as Map<dynamic, dynamic>).entries.map<AcsDevice>((m) {
-        print(m.key);
-        print(m.value);
-        print('--------------');
         return AcsDevice(m.key, name: m.value);
       }).toList();
     });
