@@ -1,7 +1,7 @@
 name: flutter_nfc_acs
-description: A new flutter plugin project.
+description: A plugin for communicating with the ACR1255U-J1 BT reader from Advanced Card Systems Ltd.
 version: 0.4.0
-homepage:
+homepage: https://www.tillty.com
 
 environment:
   sdk: ">=2.15.0 <3.0.0"
