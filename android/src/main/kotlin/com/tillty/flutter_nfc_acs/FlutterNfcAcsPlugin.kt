@@ -11,7 +11,6 @@ import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import com.acs.bluetooth.Acr1255uj1Reader
 import com.acs.bluetooth.BluetoothReader
 import com.acs.bluetooth.BluetoothReaderGattCallback
@@ -96,10 +95,20 @@ class FlutterNfcAcsPlugin : BluetoothPermissions(), FlutterPlugin, ActivityAware
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         context = flutterPluginBinding.applicationContext
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter.tillty.com/nfc/acs")
-        devicesChannel = EventChannel(flutterPluginBinding.binaryMessenger, "flutter.tillty.com/nfc/acs/devices")
-        deviceBatteryChannel = EventChannel(flutterPluginBinding.binaryMessenger, "flutter.tillty.com/nfc/acs/device/battery")
-        deviceStatusChannel = EventChannel(flutterPluginBinding.binaryMessenger, "flutter.tillty.com/nfc/acs/device/status")
-        deviceCardChannel = EventChannel(flutterPluginBinding.binaryMessenger, "flutter.tillty.com/nfc/acs/device/card")
+        devicesChannel =
+            EventChannel(flutterPluginBinding.binaryMessenger, "flutter.tillty.com/nfc/acs/devices")
+        deviceBatteryChannel = EventChannel(
+            flutterPluginBinding.binaryMessenger,
+            "flutter.tillty.com/nfc/acs/device/battery"
+        )
+        deviceStatusChannel = EventChannel(
+            flutterPluginBinding.binaryMessenger,
+            "flutter.tillty.com/nfc/acs/device/status"
+        )
+        deviceCardChannel = EventChannel(
+            flutterPluginBinding.binaryMessenger,
+            "flutter.tillty.com/nfc/acs/device/card"
+        )
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -113,7 +122,7 @@ class FlutterNfcAcsPlugin : BluetoothPermissions(), FlutterPlugin, ActivityAware
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activityBinding = binding
-        init()
+        init(binding)
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
@@ -122,15 +131,15 @@ class FlutterNfcAcsPlugin : BluetoothPermissions(), FlutterPlugin, ActivityAware
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         activityBinding = binding
-        init()
+        init(binding)
     }
 
     override fun onDetachedFromActivity() {
         dispose()
     }
 
-    override val activity: Activity
-        get() = activityBinding!!.activity
+    override val activity: Activity?
+        get() = activityBinding?.activity
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         pendingMethodCall = call
@@ -238,18 +247,18 @@ class FlutterNfcAcsPlugin : BluetoothPermissions(), FlutterPlugin, ActivityAware
         }
     }
 
-    private fun init() {
-        val lifecycle: Lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding!!)
+    private fun init(activityBinding: ActivityPluginBinding) {
+        val lifecycle: Lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(activityBinding)
         lifecycle.addObserver(this)
         bluetoothManager = context!!.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         if (bluetoothManager == null) return
         setupReaderManager()
         setupGattCallback()
         channel.setMethodCallHandler(this)
-        activityBinding!!.addRequestPermissionsResultListener(this)
-        deviceScanner = DeviceScanner(bluetoothManager!!.adapter, activityBinding!!.activity)
+        activityBinding.addRequestPermissionsResultListener(this)
+        deviceScanner = DeviceScanner(bluetoothManager!!.adapter, activityBinding.activity)
         devicesChannel.setStreamHandler(deviceScanner)
-        activityBinding!!.addRequestPermissionsResultListener(deviceScanner!!)
+        activityBinding.addRequestPermissionsResultListener(deviceScanner!!)
         deviceStatusChannel.setStreamHandler(this)
         cardStreamHandler = CardStreamHandler()
         deviceCardChannel.setStreamHandler(cardStreamHandler)
@@ -262,9 +271,9 @@ class FlutterNfcAcsPlugin : BluetoothPermissions(), FlutterPlugin, ActivityAware
         devicesChannel.setStreamHandler(null)
         channel.setMethodCallHandler(null)
         deviceCardChannel.setStreamHandler(null)
-        cardStreamHandler!!.dispose()
+        cardStreamHandler?.dispose()
         deviceBatteryChannel.setStreamHandler(null)
-        batteryStreamHandler!!.dispose()
+        batteryStreamHandler?.dispose()
         deviceStatusChannel.setStreamHandler(null)
         activityBinding?.removeRequestPermissionsResultListener(deviceScanner!!)
         activityBinding?.removeRequestPermissionsResultListener(this)
@@ -347,20 +356,20 @@ class FlutterNfcAcsPlugin : BluetoothPermissions(), FlutterPlugin, ActivityAware
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 mBluetoothReaderManager?.detectReader(gatt, mGattCallback)
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                mBluetoothGatt!!.disconnect()
-                mBluetoothGatt!!.close()
+                mBluetoothGatt?.disconnect()
+                mBluetoothGatt?.close()
                 mBluetoothGatt = null
                 setConnectionState(BluetoothReader.STATE_DISCONNECTED)
             }
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    /*@OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun connectIfDisconnected() {
         if (address != null && mConnectState == BluetoothReader.STATE_DISCONNECTED) {
             connectToReader()
         }
-    }
+    }*/
 
     private fun connectToReader(): Boolean {
         if (address == null) {
@@ -374,8 +383,8 @@ class FlutterNfcAcsPlugin : BluetoothPermissions(), FlutterPlugin, ActivityAware
             )
             return false
         }
-        val bluetoothAdapter = bluetoothManager!!.adapter
-        if (!bluetoothAdapter.isEnabled) {
+        val bluetoothAdapter = bluetoothManager?.adapter
+        if (bluetoothAdapter?.isEnabled != true) {
             Log.w(ContentValues.TAG, "Bluetooth was not enabled!")
             return false
         }
@@ -384,10 +393,9 @@ class FlutterNfcAcsPlugin : BluetoothPermissions(), FlutterPlugin, ActivityAware
             Log.w(ContentValues.TAG, "Device not found. Unable to connect.")
             return false
         }
-        if (mBluetoothGatt != null) {
-            mBluetoothGatt!!.disconnect()
-            mBluetoothGatt!!.close()
-        }
+
+        mBluetoothGatt?.disconnect()
+        mBluetoothGatt?.close()
 
         // Connect to the GATT server.
         setConnectionState(BluetoothReader.STATE_CONNECTING)
@@ -400,9 +408,7 @@ class FlutterNfcAcsPlugin : BluetoothPermissions(), FlutterPlugin, ActivityAware
      */
     private fun disconnectFromReader() {
         // Close existing GATT connection
-        if (mBluetoothGatt != null) {
-            mBluetoothGatt!!.disconnect()
-        }
+        mBluetoothGatt?.disconnect()
         setConnectionState(BluetoothReader.STATE_DISCONNECTED)
     }
 

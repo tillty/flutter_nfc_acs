@@ -54,6 +54,10 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    lint {
+        disable 'InvalidPackage'
+    }
+    namespace 'com.tillty.flutter_nfc_acs_example'
 }
 
 flutter {

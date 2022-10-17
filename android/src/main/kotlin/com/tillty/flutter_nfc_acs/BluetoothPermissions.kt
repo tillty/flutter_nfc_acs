@@ -34,6 +34,8 @@ abstract class BluetoothPermissions : RequestPermissionsResultListener {
     }
 
     fun requestPermissions() {
+        val activity = this.activity ?: return
+
         if (Build.VERSION.SDK_INT < 31) {
             ActivityCompat.requestPermissions(
                 activity, arrayOf(
@@ -52,6 +54,8 @@ abstract class BluetoothPermissions : RequestPermissionsResultListener {
     }
 
     fun hasPermissions(): Boolean {
+        val activity = this.activity ?: return false
+
         return if (Build.VERSION.SDK_INT < 31) {
             ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
         } else {
@@ -65,7 +69,7 @@ abstract class BluetoothPermissions : RequestPermissionsResultListener {
         }
     }
 
-    protected abstract val activity: Activity
+    protected abstract val activity: Activity?
     protected abstract fun afterPermissionsGranted()
     protected abstract fun afterPermissionsDenied()
 }
