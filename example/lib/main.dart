@@ -12,7 +12,7 @@ class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -44,7 +44,7 @@ class _MyAppState extends State<MyApp> {
                   final item = snapshot.data![i];
                   return ElevatedButton(
                     key: ValueKey(item.address),
-                    child: Text((item.name ?? 'No name') + ' -- ' + item.address),
+                    child: Text('${item.name ?? 'No name'} -- ${item.address}'),
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -75,7 +75,7 @@ class DeviceRoute extends StatefulWidget {
   final AcsDevice device;
 
   @override
-  _DeviceRouteState createState() => _DeviceRouteState();
+  State<DeviceRoute> createState() => _DeviceRouteState();
 }
 
 class _DeviceRouteState extends State<DeviceRoute> {
@@ -114,7 +114,7 @@ class _DeviceRouteState extends State<DeviceRoute> {
               stream: FlutterNfcAcs.batteryStatus,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.active) {
-                  return Text('Battery level: ' + snapshot.data.toString());
+                  return Text('Battery level: ${snapshot.data}');
                 } else {
                   return const SizedBox.shrink();
                 }
@@ -129,7 +129,7 @@ class _DeviceRouteState extends State<DeviceRoute> {
                   case ConnectionState.waiting:
                     return const Text('Card: waiting');
                   case ConnectionState.active:
-                    return Text('Card: ' + snapshot.data.toString());
+                    return Text('Card: ${snapshot.data}');
                   case ConnectionState.done:
                     return const Text('Card: done');
                   default:
@@ -146,7 +146,7 @@ class _DeviceRouteState extends State<DeviceRoute> {
                   case ConnectionState.waiting:
                     return const Text('Connection: waiting');
                   case ConnectionState.active:
-                    return Text('Connection: ' + snapshot.data.toString());
+                    return Text('Connection: ${snapshot.data}');
                   case ConnectionState.done:
                     return const Text('Connection: done');
                   default:
