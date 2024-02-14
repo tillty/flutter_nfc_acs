@@ -9,7 +9,7 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -70,7 +70,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 class DeviceRoute extends StatefulWidget {
-  const DeviceRoute({Key? key, required this.device}) : super(key: key);
+  const DeviceRoute({super.key, required this.device});
 
   final AcsDevice device;
 

@@ -4,13 +4,13 @@ version: 0.4.6
 homepage: https://www.tillty.com
 
 environment:
-  sdk: ">=2.19.0 <3.0.0"
-  flutter: ">=3.0.0"
+  sdk: ">=2.19.6 <4.0.0"
+  flutter: ">=3.3.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_plugin_android_lifecycle: ^2.0.15
+  flutter_plugin_android_lifecycle:
 
 dev_dependencies:
   flutter_test:
