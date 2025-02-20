@@ -1,5 +1,6 @@
 package com.tillty.flutter_nfc_acs
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.BluetoothLeScanner
@@ -13,20 +14,13 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.EventChannel.EventSink
 import java.util.*
 
-internal class DeviceScanner(adapter: BluetoothAdapter, activity: Activity) :
+internal class DeviceScanner(private val adapter: BluetoothAdapter, override val activity: Activity) :
   BluetoothPermissions(), EventChannel.StreamHandler {
   private var btDevices: HashMap<String, String>? = null
-  private val bluetoothAdapter: BluetoothAdapter?
   private var events: EventSink? = null
   private var scanning = false
-  private val scanner: BluetoothLeScanner
-  override val activity: Activity
-
-  init {
-    bluetoothAdapter = adapter
-    scanner = adapter.bluetoothLeScanner
-    this.activity = activity
-  }
+  private val scanner: BluetoothLeScanner?
+    get() = adapter.bluetoothLeScanner
 
   companion object {
     private const val SCAN_PERIOD: Long = 10000
@@ -48,6 +42,7 @@ internal class DeviceScanner(adapter: BluetoothAdapter, activity: Activity) :
   }
 
   private val scanCallback = object : ScanCallback() {
+    @SuppressLint("MissingPermission")
     override fun onScanResult(callbackType: Int, result: ScanResult) {
       val e = events
       if (e != null) {
@@ -67,6 +62,7 @@ internal class DeviceScanner(adapter: BluetoothAdapter, activity: Activity) :
     }
   }
 
+  @SuppressLint("MissingPermission")
   private fun startScan() {
     btDevices = HashMap()
     scanning = true
@@ -76,20 +72,17 @@ internal class DeviceScanner(adapter: BluetoothAdapter, activity: Activity) :
         stopScan()
       }
     }, SCAN_PERIOD)
-    scanner.startScan(scanCallback)
+    scanner?.startScan(scanCallback)
   }
 
+  @SuppressLint("MissingPermission")
   private fun stopScan() {
-    scanner.stopScan(scanCallback)
+    scanner?.stopScan(scanCallback)
     scanning = false
   }
 
   override fun afterPermissionsGranted() {
-    if (bluetoothAdapter != null) {
-      startScan()
-    } else {
-      Log.e(ContentValues.TAG, "Bluetooth adapter was null, in the permission callback")
-    }
+    startScan()
   }
 
   override fun afterPermissionsDenied() {
