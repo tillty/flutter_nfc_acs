@@ -1,0 +1,12 @@
+name: Add PR to Project
+
+on:
+  pull_request_target:
+    types: [opened, reopened]
+
+jobs:
+  add-to-project:
+    uses: tillty/.github/.github/workflows/add-pr-to-project.yml@main
+    secrets:
+      APP_ID: ${{ secrets.APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
