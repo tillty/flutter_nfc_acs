@@ -22,7 +22,12 @@ abstract class BluetoothPermissions : RequestPermissionsResultListener {
   ): Boolean {
     return when (requestCode) {
       PERMISSION_REQUEST -> {
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        // Android answers a request made while another is still showing with
+        // empty arrays. The prompt that is showing still delivers the real
+        // result, so acting on the empty one would fail a request the user
+        // may be about to grant.
+        if (grantResults.isEmpty()) return true
+        if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
           afterPermissionsGranted()
         } else {
           afterPermissionsDenied()
